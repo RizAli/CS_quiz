@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCR J277 GCSE Computer Science Quiz</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-2: #1f2937;
+      --border: #374151;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-soft: rgba(59,130,246,0.12);
+      --good: #10b981;
+      --good-soft: rgba(16,185,129,0.12);
+      --bad: #ef4444;
+      --bad-soft: rgba(239,68,68,0.12);
+      --radius: 12px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, var(--bg), #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 16px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary-soft); color: var(--primary);
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    }
+    h1 { margin: 12px 0 8px; font-size: 28px; line-height: 1.15; }
+    p.desc { color: var(--muted); margin: 0 0 18px; font-size: 15px; line-height: 1.55; }
+    .topics { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); margin-bottom: 18px; }
+    .topic {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; font-size: 13px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+    label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--muted); }
+    input[type="text"] {
+      width: 100%; max-width: 360px; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+      font-size: 15px; outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.25); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary); color: #fff; border: none; border-radius: 10px;
+      padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: opacity .2s ease, transform .08s ease;
+    }
+    .btn:hover:not(:disabled) { opacity: .92; }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn.full { width: 100%; justify-content: center; }
+    .progress { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin: 10px 0 18px; }
+    .progress > div { height: 100%; background: var(--primary); border-radius: 999px; transition: width .3s ease; }
+    .meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .badge { display: inline-block; background: rgba(255,255,255,0.07); color: var(--muted); padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+    .opts { display: flex; flex-direction: column; gap: 10px; }
+    .opt {
+      display: flex; align-items: flex-start; gap: 12px;
+      width: 100%; text-align: left; padding: 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer;
+      font-size: 15px; line-height: 1.45; transition: border-color .15s ease, background .15s ease;
+    }
+    .opt:hover:not(:disabled) { border-color: rgba(59,130,246,0.55); background: rgba(59,130,246,0.06); }
+    .opt.sel { border-color: var(--primary); background: var(--primary-soft); }
+    .opt.correct { border-color: var(--good); background: var(--good-soft); }
+    .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+    .opt:disabled { cursor: not-allowed; }
+    .letter {
+      width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .opt.sel .letter { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .opt.correct .letter { border-color: var(--good); background: var(--good); color: #fff; }
+    .opt.wrong .letter { border-color: var(--bad); background: var(--bad); color: #fff; }
+    .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .score-big { font-size: 64px; font-weight: 800; line-height: 1; }
+    .review { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .review li { border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .review .row { display: flex; align-items: flex-start; gap: 12px; }
+    .review .icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 2px; }
+    .icon.ok { background: var(--good-soft); color: var(--good); }
+    .icon.no { background: var(--bad-soft); color: var(--bad); }
+    .qtext { font-weight: 600; margin: 4px 0 6px; }
+    .ans { font-size: 13px; color: var(--muted); }
+    .ans .yours.good { color: var(--good); font-weight: 600; }
+    .ans .yours.bad { color: var(--bad); font-weight: 600; }
+    .ans .correct { color: var(--text); font-weight: 600; }
+    @media (max-width: 560px) {
+      .topics { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"></div>
+
+  <script>
+    const TOPICS = [
+      "1.3 Networks",
+      "1.4 Network Security",
+      "1.5 Systems Software",
+      "1.6 Ethical, Legal, Cultural & Environmental",
+    ];
+    const QUESTIONS = [
+      { id:"1.3-1",  topic:TOPICS[0], question:"Which of the following best describes a Local Area Network (LAN)?", options:["A network that connects computers across a large geographical area, such as a country.","A network that connects computers over a small geographical site, typically using own infrastructure.","A network that connects devices globally using third-party telecommunications.","A network restricted entirely to wireless connections."], answer:1 },
+      { id:"1.3-2",  topic:TOPICS[0], question:"What is a primary disadvantage of a Star network topology?", options:["If one cable fails, the entire network goes down.","It is very difficult to add new devices to the network.","If the central switch or server fails, the whole network goes down.","Data collisions are highly frequent because all data travels along a single cable."], answer:2 },
+      { id:"1.3-3",  topic:TOPICS[0], question:"What is the role of a router in a network?", options:["To connect devices within a single LAN and forward data using MAC addresses.","To convert digital signals from a computer into analogue signals for a telephone line.","To transmit data between different networks by reading destination IP addresses.","To look up the IP address of a website based on its domain name."], answer:2 },
+      { id:"1.3-4",  topic:TOPICS[0], question:"Which protocol is responsible for securely transmitting web pages over the internet?", options:["HTTP","HTTPS","FTP","SMTP"], answer:1 },
+      { id:"1.3-5",  topic:TOPICS[0], question:"Which of the following statements about a Peer-to-Peer (P2P) network is TRUE?", options:["All devices are dependent on a central server to access files.","Every computer on the network has equal responsibility and can act as both a client and a server.","P2P networks are much easier to back up centrally than Client-Server networks.","Security is managed centrally by a network administrator."], answer:1 },
+      { id:"1.3-14", topic:TOPICS[0], question:"What is a key benefit of storing files on \"The Cloud\"?", options:["You do not need an internet connection to access your data.","Data is 100% immune to hacking and security breaches.","Files can be accessed from any device worldwide, provided there is an internet connection.","It completely removes the need for local RAM on a computer."], answer:2 },
+      { id:"1.3-15", topic:TOPICS[0], question:"In a Mesh topology, how are devices connected?", options:["Every device is connected to a single, central coaxial cable.","All devices are connected directly or indirectly to one another, providing multiple routing paths.","Devices are connected in a closed loop, where data travels in one direction.","Devices must connect to a central hub, which broadcasts data to everyone."], answer:1 },
+      { id:"1.3-17", topic:TOPICS[0], question:"What does a Network Interface Card (NIC) do?", options:["It assigns a dynamic IP address to a computer.","It provides the physical or wireless connection between a computer's internal hardware and the network media.","It hosts the website files for external clients to access.","It blocks unauthorised traffic from entering a private network."], answer:1 },
+      { id:"1.3-18", topic:TOPICS[0], question:"What is \"bandwidth\"?", options:["The physical speed at which light travels through a fibre-optic cable.","The amount of data that can be transmitted over a network connection in a given amount of time.","The total number of wireless devices connected to a single router.","The time delay it takes for a data packet to travel from sender to receiver."], answer:1 },
+      { id:"1.3-19", topic:TOPICS[0], question:"Which transmission media uses pulses of light to transmit data and is least susceptible to electromagnetic interference?", options:["Copper Coaxial Cable","Unshielded Twisted Pair (UTP) Ethernet Cable","Wi-Fi Radio Waves","Fibre-optic Cable"], answer:3 },
+      { id:"1.3-20", topic:TOPICS[0], question:"What is the main function of the Transport Layer in the TCP/IP protocol stack?", options:["Turning data into electrical or radio signals for physical transmission.","Setting up communication rules, splitting data into packets, and checking that all packets are received correctly.","Displaying the user interface of an email application or web browser.","Assigning the source and destination MAC addresses to a packet frame."], answer:1 },
+
+      { id:"1.4-4",  topic:TOPICS[1], question:"What is the primary purpose of a 'Brute-force attack'?", options:["To physically smash server hardware to disrupt a business.","To gain unauthorized access to an account by systematically trying every possible password combination.","To corrupt a database by inserting malicious code into a website form.","To trick a user into revealing their bank details via a fake email."], answer:1 },
+      { id:"1.4-5",  topic:TOPICS[1], question:"Which form of attack uses fake emails and fraudulent websites to trick individuals into revealing personal information?", options:["Phishing","Malware","Shoulder surfing","Data interception"], answer:0 },
+      { id:"1.4-6",  topic:TOPICS[1], question:"A hacker inputs malicious database command code into a website's search bar to bypass security. What is this attack called?", options:["Brute-force attack","Ransomware","SQL Injection","Social engineering"], answer:2 },
+      { id:"1.4-7",  topic:TOPICS[1], question:"What is the definition of 'Malware'?", options:["Hardware that has been physically damaged.","Software designed with malicious intent to disrupt, damage, or gain unauthorized access to a computer system.","A network tool used by network administrators to monitor traffic.","An outdated version of an operating system."], answer:1 },
+      { id:"1.4-8",  topic:TOPICS[1], question:"Which type of malware replicates itself across a network by exploiting security vulnerabilities, without needing human interaction or a host file?", options:["Virus","Worm","Trojan","Spyware"], answer:1 },
+      { id:"1.4-9",  topic:TOPICS[1], question:"A user downloads what looks like a free video game, but once opened it secretly installs a program that steals their files. What type of malware is this?", options:["Worm","Ransomware","Trojan","Rootkit"], answer:2 },
+      { id:"1.4-10", topic:TOPICS[1], question:"Which type of malware encrypts a user's files and demands a financial payment for the decryption key?", options:["Spyware","Adware","Ransomware","Virus"], answer:2 },
+      { id:"1.4-11", topic:TOPICS[1], question:"What does 'Spyware' do on a computer system?", options:["It secretly monitors user actions, such as keypresses, and sends information back to the hacker.","It displays unwanted advertisements on the user's screen.","It deletes the operating system's core files.","It locks the computer screen and demands money."], answer:0 },
+      { id:"1.4-12", topic:TOPICS[1], question:"What is 'Social Engineering'?", options:["Designing a computer network to be more user-friendly for employees.","Manipulating people into breaking normal security procedures or giving away confidential information.","Writing complex code to hack into secure government databases.","Upgrading network hardware to improve data transmission speeds."], answer:1 },
+      { id:"1.4-13", topic:TOPICS[1], question:"Which is an example of 'People as a vulnerability' in computer systems?", options:["A firewall rule that blocks unauthorized ports.","An employee choosing a weak password like 'password123' or leaving their computer unlocked.","An outdated anti-malware signature database.","A physical lock on a server room door failing."], answer:1 },
+      { id:"1.4-14", topic:TOPICS[1], question:"What is the main purpose of 'Penetration Testing'?", options:["To test how fast data can travel across a network fibre-optic cable.","To deliberately attack a network under controlled conditions to find and fix security vulnerabilities.","To install antivirus software on all client computers.","To punish employees who fail to follow security protocols."], answer:1 },
+      { id:"1.4-15", topic:TOPICS[1], question:"What is 'Anti-malware software' designed to do?", options:["Block all incoming traffic from the internet.","Scan, detect, prevent, and remove malicious software from a computer system.","Encrypt data before it is sent across a network.","Automatically generate strong passwords for users."], answer:1 },
+      { id:"1.4-16", topic:TOPICS[1], question:"Which network security measure monitors incoming and outgoing network traffic and blocks unauthorized access based on a set of security rules?", options:["Encryption","Firewall","Anti-malware","User access levels"], answer:1 },
+      { id:"1.4-17", topic:TOPICS[1], question:"A company allows managers to access financial records, but standard employees can only view their own shifts. What security concept is this?", options:["Firewalls","Encryption","User access levels","Penetration testing"], answer:2 },
+      { id:"1.4-18", topic:TOPICS[1], question:"Why do organizations enforce strict 'Password policies'?", options:["To make it easier for users to remember their passwords.","To protect against brute-force attacks by making passwords harder to guess or crack.","To increase the speed of network data transmission.","To reduce the amount of storage space needed on the server."], answer:1 },
+      { id:"1.4-19", topic:TOPICS[1], question:"What is 'Encryption'?", options:["The process of deleting unauthorized files from a hard drive.","Scrambling data into an unreadable format using a key, so unauthorized users cannot understand it.","Preventing users from visiting malicious websites.","Backing up data to an external hard drive every night."], answer:1 },
+      { id:"1.4-20", topic:TOPICS[1], question:"Which physical security measure prevents unauthorized people from entering a server room?", options:["A firewall","Biometric locks (e.g., fingerprint scanners) and keycards","Strong password policies","Data encryption"], answer:1 },
+
+      { id:"1.5-1",  topic:TOPICS[2], question:"Which function of the OS allows multiple applications to run at the same time?", options:["User Interface","Multitasking","File Management","Encryption"], answer:1 },
+      { id:"1.5-3",  topic:TOPICS[2], question:"What is the purpose of 'Device Drivers'?", options:["To speed up the internal clock speed of the CPU","To act as a translator between the OS and hardware peripherals","To manage the folders and files on a hard drive","To provide a GUI for the user"], answer:1 },
+      { id:"1.5-4",  topic:TOPICS[2], question:"A User Interface that allows users to interact using icons and a mouse is called:", options:["Command Line Interface (CLI)","Menu-Driven Interface","Graphical User Interface (GUI)","Voice-Activated Interface"], answer:2 },
+      { id:"1.5-10", topic:TOPICS[2], question:"What is the primary purpose of Defragmentation software?", options:["To remove viruses from the system","To reorganize files on a HDD so they are stored in contiguous sectors","To reduce the size of files for emailing","To create a secure backup of data"], answer:1 },
+      { id:"1.5-12", topic:TOPICS[2], question:"Why is defragmentation not recommended for Solid State Drives (SSDs)?", options:["SSDs are already too fast to benefit","SSDs have no moving parts and defragmenting reduces their lifespan","SSDs do not use sectors or tracks","SSDs automatically encrypt all fragmented data"], answer:1 },
+      { id:"1.5-13", topic:TOPICS[2], question:"What is the purpose of Compression software?", options:["To make a computer run faster by overclocking","To reduce file size so they take up less disk space or transmit faster","To recover deleted files from the recycle bin","To check for errors in the RAM"], answer:1 },
+      { id:"1.5-14", topic:TOPICS[2], question:"Which utility software turns data into an unreadable format using a key?", options:["Compression","Defragmentation","Encryption","Anti-virus"], answer:2 },
+      { id:"1.5-17", topic:TOPICS[2], question:"Which utility would you use to protect against unauthorized access to a network?", options:["Disk Cleanup","Firewall","Defragmenter","Formatter"], answer:1 },
+      { id:"1.5-18", topic:TOPICS[2], question:"What is the purpose of 'Antispyware' software?", options:["To prevent people from looking at your screen","To detect and remove programs that secretly monitor user activity","To speed up the boot time of the OS","To encrypt emails before they are sent"], answer:1 },
+      { id:"1.5-19", topic:TOPICS[2], question:"Which of these is an example of 'System Software'?", options:["A web browser (e.g., Chrome)","An Operating System (e.g., Windows 11)","A word processor (e.g., Word)","A video game"], answer:1 },
+      { id:"1.5-20", topic:TOPICS[2], question:"What is the main difference between Application Software and System Software?", options:["System software is used for end-user tasks; Application software runs the hardware","System software manages the computer; Application software performs specific tasks for the user","System software is always free; Application software is always paid","There is no difference"], answer:1 },
+
+      { id:"1.6-1",  topic:TOPICS[3], question:"A company monitors its employees' keystrokes and screen activity while they work from home. Which type of issue does this scenario best represent?", options:["Environmental issue","Legal issue","Ethical issue","Open-source issue"], answer:2 },
+      { id:"1.6-2",  topic:TOPICS[3], question:"What is meant by 'The Digital Divide'?", options:["The division between open-source and proprietary software developers.","The gap between those who have access to modern digital technology and those who do not.","The legal separation of personal data and business data under the law.","The way a hard drive is partitioned into different logical sectors."], answer:1 },
+      { id:"1.6-3",  topic:TOPICS[3], question:"Which is a major cultural impact of the widespread use of smartphones?", options:["Increased release of greenhouse gases during manufacturing.","Changes in how people socially interact and communicate globally.","The introduction of stricter data privacy laws.","An increase in the amount of toxic chemical runoff in landfills."], answer:1 },
+      { id:"1.6-4",  topic:TOPICS[3], question:"A school introduces facial recognition for registration. Parents object that it normalizes surveillance. This concern is primarily:", options:["Environmental impact","Legal compliance with the Copyright Act","Cultural and ethical concerns over privacy","Open-source software licensing"], answer:2 },
+      { id:"1.6-6",  topic:TOPICS[3], question:"A primary environmental concern with manufacturing smartphones is:", options:["The use of open-source software libraries.","The extraction of rare earth elements, which causes habitat destruction and pollution.","The high data transmission rates over 5G networks.","The implementation of the Data Protection Act."], answer:1 },
+      { id:"1.6-7",  topic:TOPICS[3], question:"What is 'e-waste'?", options:["Electronic emails that are marked as spam.","Discarded electrical or electronic devices, which often end up in landfills.","The energy wasted when a computer is left on standby mode.","Data that has been corrupted during transmission over a network."], answer:1 },
+      { id:"1.6-8",  topic:TOPICS[3], question:"Why do large data centers have a massive environmental footprint?", options:["They require a lot of physical paper to store backups.","They consume vast amounts of electricity for processing and constant cooling systems.","They are legally required to be built in protected rainforests.","They only use open-source operating systems which require more power."], answer:1 },
+      { id:"1.6-9",  topic:TOPICS[3], question:"Which practice directly helps reduce the environmental impact of digital technology?", options:["Upgrading to a new smartphone every 12 months.","Leaving computers running 24/7 to avoid boot-up energy spikes.","Recycling old devices at specialized e-waste facilities and repairing older hardware.","Switching all company software from open-source to proprietary."], answer:2 },
+      { id:"1.6-10", topic:TOPICS[3], question:"A hacker gains unauthorized access to a bank's database to look at balances but doesn't alter or steal anything. Which legislation have they broken?", options:["Data Protection Act 2018","Copyright, Designs and Patents Act 1988","Computer Misuse Act 1990","Freedom of Information Act 2000"], answer:2 },
+      { id:"1.6-11", topic:TOPICS[3], question:"Under the Data Protection Act 2018, a key right given to data subjects is:", options:["The right to access anyone else's personal data without their permission.","The right to have their personal data erased ('the right to be forgotten') under certain conditions.","The right to copy proprietary software for personal use.","The right to demand free internet access from the government."], answer:1 },
+      { id:"1.6-12", topic:TOPICS[3], question:"A student downloads a cracked version of premium software from a torrent site. Which act does this violate?", options:["Computer Misuse Act 1990","Copyright, Designs and Patents Act 1988","Data Protection Act 2018","Freedom of Information Act 2000"], answer:1 },
+      { id:"1.6-13", topic:TOPICS[3], question:"A citizen wants to see the minutes of a local council meeting. Which legislation allows them to request this?", options:["Freedom of Information Act 2000","Computer Misuse Act 1990","Data Protection Act 2018","Copyright, Designs and Patents Act 1988"], answer:0 },
+      { id:"1.6-14", topic:TOPICS[3], question:"Section 3 of the Computer Misuse Act 1990 covers what specifically?", options:["Unauthorized access to computer material.","Unauthorized access with intent to commit a further offense.","Unauthorized acts with intent to impair, or with recklessness as to impairing, the operation of a computer.","Illegal distribution of copyrighted software."], answer:2 },
+      { id:"1.6-15", topic:TOPICS[3], question:"What is a defining characteristic of Open-Source Software?", options:["Users are never allowed to see or modify the source code.","The source code is freely available for anyone to view, modify, and distribute.","It can only be run on Linux operating systems.","It is strictly illegal to use it for commercial business purposes."], answer:1 },
+      { id:"1.6-16", topic:TOPICS[3], question:"A typical advantage of Proprietary Software over Open-Source Software is:", options:["It is always completely free of charge.","Users can modify the code to add any feature they want.","It usually comes with official customer support, regular updates, and extensive testing.","It does not require an operating system to run."], answer:2 },
+      { id:"1.6-17", topic:TOPICS[3], question:"A business wants a solution they can fully customize at the source-code level without paying licensing fees per user. They should choose:", options:["Proprietary software","Shareware","Open-source software","Closed-source software"], answer:2 },
+      { id:"1.6-18", topic:TOPICS[3], question:"Why might a software developer choose to release their work under a proprietary license?", options:["To allow the community to fix bugs for them for free.","To protect their intellectual property and generate revenue through sales or subscriptions.","Because the Computer Misuse Act requires all software to be proprietary.","To ensure that the software can run on any hardware without optimization."], answer:1 },
+      { id:"1.6-19", topic:TOPICS[3], question:"A hospital leaves unencrypted patient records on a public cloud server. Which combination is most relevant?", options:["Cultural impact; violates the Freedom of Information Act.","Ethical impact; violates the Copyright, Designs and Patents Act.","Ethical and Legal impact; violates the Data Protection Act 2018.","Environmental impact; violates the Computer Misuse Act."], answer:2 },
+      { id:"1.6-20", topic:TOPICS[3], question:"A company replaces its call center staff with an AI chatbot. The primary ethical and cultural impacts are:", options:["Increased e-waste production and a violation of the Freedom of Information Act.","Job losses for employees (ethical) and a shift toward automated user experiences (cultural).","Increased use of proprietary software licenses and violation of the Computer Misuse Act.","Reduction in electricity consumption and bridging of the digital divide."], answer:1 },
+    ];
+
+    let phase = 'start';
+    let studentName = '';
+    let current = 0;
+    let answers = QUESTIONS.map(() => null);
+    let selected = null;
+    let revealed = false;
+
+    const app = document.getElementById('app');
+
+    function score() {
+      return answers.reduce((acc, a, i) => acc + (a === QUESTIONS[i].answer ? 1 : 0), 0);
+    }
+
+    function render() {
+      if (phase === 'start') {
+        app.innerHTML = `
+          <div class="card">
+            <div class="pill">OCR J277 GCSE Computer Science</div>
+            <h1>Networks, Security, Systems & Impacts Quiz</h1>
+            <p class="desc">${QUESTIONS.length} multiple-choice questions covering sections 1.3, 1.4, 1.5 and 1.6. You'll see the correct answer after each question.</p>
+            <div class="topics">${TOPICS.map(t => `<div class="topic"><span class="dot"></span>${t}</div>`).join('')}</div>
+            <label for="name">Your name</label>
+            <input type="text" id="name" placeholder="Enter your full name" value="${studentName.replace(/"/g,'&quot;')}" />
+            <div style="margin-top:16px">
+              <button class="btn" id="startBtn" disabled>Start quiz</button>
+            </div>
+          </div>
+        `;
+        const input = document.getElementById('name');
+        const btn = document.getElementById('startBtn');
+        input.addEventListener('input', (e) => {
+          studentName = e.target.value;
+          btn.disabled = !studentName.trim();
+        });
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && studentName.trim()) startQuiz(); });
+        btn.addEventListener('click', startQuiz);
+        input.focus();
+        return;
+      }
+
+      if (phase === 'results') {
+        const sc = score();
+        const pct = Math.round((sc / QUESTIONS.length) * 100);
+        const grade = pct >= 90 ? 'Outstanding' : pct >= 75 ? 'Strong' : pct >= 60 ? 'Solid' : pct >= 40 ? 'Keep practising' : 'Needs review';
+        app.innerHTML = `
+          <div class="card">
+            <div style="color:var(--muted);font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              ${studentName}
+            </div>
+            <h1>Your result</h1>
+            <p class="desc">${grade}</p>
+            <div style="display:flex;align-items:flex-end;gap:12px;margin:8px 0 18px">
+              <div class="score-big">${sc}</div>
+              <div style="color:var(--muted);padding-bottom:8px">/ ${QUESTIONS.length} correct (${pct}%)</div>
+            </div>
+            <div class="progress"><div style="width:${pct}%"></div></div>
+            <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 10px">Review</h3>
+            <ol class="review">
+              ${QUESTIONS.map((q, i) => {
+                const a = answers[i];
+                const correct = a === q.answer;
+                return `<li>
+                  <div class="row">
+                    <div class="icon ${correct ? 'ok' : 'no'}">${correct ? '&#10003;' : '&#10007;'}</div>
+                    <div style="flex:1">
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+                        <span class="badge">${q.topic}</span>
+                        <span class="badge">Q${i+1}</span>
+                      </div>
+                      <div class="qtext">${q.question}</div>
+                      <div class="ans">Your answer: <span class="yours ${correct ? 'good' : 'bad'}">${a === null ? 'Not answered' : q.options[a]}</span></div>
+                      ${!correct ? `<div class="ans">Correct answer: <span class="correct">${q.options[q.answer]}</span></div>` : ''}
+                    </div>
+                  </div>
+                </li>`;
+              }).join('')}
+            </ol>
+            <div style="margin-top:20px">
+              <button class="btn" id="retryBtn">&#x21bb; Try again</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('retryBtn').addEventListener('click', () => {
+          phase = 'start';
+          current = 0;
+          answers = QUESTIONS.map(() => null);
+          selected = null;
+          revealed = false;
+          render();
+        });
+        return;
+      }
+
+      // quiz phase
+      const q = QUESTIONS[current];
+      const prog = ((current + (revealed ? 1 : 0)) / QUESTIONS.length) * 100;
+      app.innerHTML = `
+        <div>
+          <div class="meta"><span>Question ${current + 1} of ${QUESTIONS.length}</span><span>Score: ${score()}</span></div>
+          <div class="progress"><div style="width:${prog}%"></div></div>
+        </div>
+        <div class="card" style="margin-top:8px">
+          <span class="badge">${q.topic}</span>
+          <h1 style="font-size:22px;margin-top:10px">${q.question}</h1>
+          <div class="opts" style="margin-top:14px">
+            ${q.options.map((opt, i) => {
+              const isSel = selected === i;
+              const isCorrect = i === q.answer;
+              const showCorrect = revealed && isCorrect;
+              const showWrong = revealed && isSel && !isCorrect;
+              let cls = 'opt';
+              if (showCorrect) cls += ' correct';
+              else if (showWrong) cls += ' wrong';
+              else if (isSel && !revealed) cls += ' sel';
+              const letter = String.fromCharCode(65 + i);
+              return `<button class="${cls}" data-idx="${i}" ${revealed ? 'disabled' : ''}>
+                <span class="letter">${letter}</span>
+                <span style="flex:1">${opt}</span>
+                ${showCorrect ? '<span style="color:var(--good);font-weight:700">&#10003;</span>' : ''}
+                ${showWrong ? '<span style="color:var(--bad);font-weight:700">&#10007;</span>' : ''}
+              </button>`;
+            }).join('')}
+          </div>
+          <div class="actions">
+            ${!revealed
+              ? `<button class="btn" id="submitBtn" disabled>Submit answer</button>`
+              : `<button class="btn" id="nextBtn">${current + 1 >= QUESTIONS.length ? 'See results' : 'Next question'}</button>`
+            }
+          </div>
+        </div>
+      `;
+
+      if (!revealed) {
+        app.querySelectorAll('.opt').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selected = parseInt(btn.dataset.idx);
+            render();
+          });
+        });
+        const sub = document.getElementById('submitBtn');
+        sub.disabled = selected === null;
+        sub.addEventListener('click', () => {
+          if (selected === null) return;
+          answers[current] = selected;
+          revealed = true;
+          render();
+        });
+      } else {
+        document.getElementById('nextBtn').addEventListener('click', () => {
+          if (current + 1 >= QUESTIONS.length) {
+            phase = 'results';
+          } else {
+            current += 1;
+            selected = null;
+            revealed = false;
+          }
+          render();
+        });
+      }
+    }
+
+    function startQuiz() {
+      if (!studentName.trim()) return;
+      phase = 'quiz';
+      current = 0;
+      answers = QUESTIONS.map(() => null);
+      selected = null;
+      revealed = false;
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
